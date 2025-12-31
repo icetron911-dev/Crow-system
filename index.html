@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CROW SYSTEM | C Line</title>
+    <style>
+        :root {
+            --bg: #050505;
+            --card-bg: #0d0d0d;
+            --accent: #ffffff;
+            --text: #a0a0a0;
+            --border: #1a1a1a;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            margin: 0; padding: 0;
+            display: flex; flex-direction: column; min-height: 100vh;
+        }
+
+        /* Header Section - Aligned Left */
+        header { 
+            padding: 80px 10% 40px 10%; 
+            text-align: left; /* جعل النص بجهة اليسار */
+            animation: fadeIn 1s ease;
+        }
+        
+        @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+        
+        .logo-img { width: 70px; height: 70px; margin-bottom: 20px; border: 1px solid var(--border); padding: 8px; }
+        
+        h1 { 
+            font-size: 4rem; /* تكبير الاسم قليلاً */
+            color: var(--accent); 
+            letter-spacing: 8px; 
+            margin: 0; 
+            text-transform: uppercase; 
+            font-weight: 900; 
+        }
+
+        .header-desc {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 10px;
+            letter-spacing: 1px;
+            max-width: 600px;
+            line-height: 1.5;
+        }
+
+        /* Container */
+        .container { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; max-width: 1200px; margin: 40px auto 100px; padding: 0 20px; }
+        .card { background: var(--card-bg); border: 1px solid var(--border); padding: 35px; transition: var(--transition); }
+        .card:hover { border-color: #444; }
+        
+        h3 { font-size: 0.7rem; letter-spacing: 4px; color: var(--accent); margin-bottom: 20px; text-transform: uppercase; }
+
+        textarea { width: 100%; height: 200px; background: #000; color: #fff; border: 1px solid var(--border); padding: 15px; font-family: 'Consolas', monospace; box-sizing: border-box; outline: none; }
+
+        .controls { display: flex; gap: 15px; margin-top: 20px; }
+        .btn { padding: 12px 25px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; font-size: 0.7rem; transition: var(--transition); border: none; }
+        .btn-run { background: var(--accent); color: #000; }
+        .btn-full { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+
+        /* Fullscreen Overlay */
+        #fullScreenOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 10000; display: none;
+            flex-direction: column; align-items: center; justify-content: center;
+        }
+        #renderArea { width: 95%; height: 85%; background: #fff; border-radius: 4px; overflow: auto; }
+        .close-btn { position: absolute; top: 20px; right: 40px; color: #fff; font-size: 2rem; cursor: pointer; }
+
+        /* Footer */
+        footer { margin-top: auto; text-align: center; padding: 50px 20px; border-top: 1px solid var(--border); background: #020202; }
+        .footer-line { font-size: 0.65rem; letter-spacing: 3px; color: #444; text-transform: uppercase; margin: 5px 0; }
+        .highlight { color: var(--accent); font-weight: bold; }
+        .company-name { color: #888; letter-spacing: 5px; font-size: 0.9rem; margin-top: 10px; display: block; }
+    </style>
+</head>
+<body>
+
+<div id="fullScreenOverlay">
+    <span class="close-btn" onclick="closeFull()">&times;</span>
+    <div id="renderArea"></div>
+</div>
+
+<header>
+    <img src="logo.webp" alt="LOGO" class="logo-img" onerror="this.style.display='none'">
+    <h1>CROW SYSTEM</h1>
+    <div class="header-desc">
+        This platform was designed to serve developers and facilitate their daily development challenges.
+    </div>
+</header>
+
+<div class="container">
+    <div class="card" style="grid-column: 1 / -1;">
+        <h3>CORE ENGINE</h3>
+        <textarea id="mainInput" placeholder="Enter HTML/CSS/JS Source..."></textarea>
+        <div class="controls">
+            <button class="btn btn-run" onclick="executeCode()">▶ Run Engine</button>
+            <button class="btn btn-full" onclick="openFull()">⛶ Fullscreen</button>
+        </div>
+        <div id="inlinePreview" style="margin-top: 20px; background: #fff; min-height: 100px; display: none; padding: 10px;"></div>
+    </div>
+
+    <div class="card">
+        <h3>CASE TRANSFORM</h3>
+        <textarea id="textInput" style="height: 100px;"></textarea>
+        <button class="btn btn-run" style="margin-top:10px" onclick="document.getElementById('textInput').value = document.getElementById('textInput').value.toUpperCase()">UPPER</button>
+    </div>
+
+    <div class="card">
+        <h3>ANALYTICS</h3>
+        <textarea id="counterInput" oninput="document.getElementById('cRes').innerText = 'CHARS: ' + this.value.length" style="height: 100px;"></textarea>
+        <div id="cRes" style="margin-top:10px; font-size: 0.7rem; color: #fff;">CHARS: 0</div>
+    </div>
+</div>
+
+<footer>
+    <div class="footer-line">DV : <span class="highlight">OUSSAMA . BR</span></div>
+    <div class="footer-line">VERSION : V.1.12.26</div>
+    <div class="company-name">BY: <span class="highlight">C LINE</span></div>
+</footer>
+
+<script>
+    function executeCode() {
+        const code = document.getElementById('mainInput').value;
+        const preview = document.getElementById('inlinePreview');
+        preview.style.display = "block";
+        preview.innerHTML = "";
+        const iframe = document.createElement('iframe');
+        iframe.style.width = "100%"; iframe.style.height = "400px"; iframe.style.border = "none";
+        preview.appendChild(iframe);
+        const doc = iframe.contentWindow.document;
+        doc.open(); doc.write(code); doc.close();
+    }
+
+    function openFull() {
+        const code = document.getElementById('mainInput').value;
+        const overlay = document.getElementById('fullScreenOverlay');
+        const renderArea = document.getElementById('renderArea');
+        overlay.style.display = "flex";
+        renderArea.innerHTML = "";
+        const iframe = document.createElement('iframe');
+        iframe.style.width = "100%"; iframe.style.height = "100%"; iframe.style.border = "none";
+        renderArea.appendChild(iframe);
+        const doc = iframe.contentWindow.document;
+        doc.open(); doc.write(code); doc.close();
+        iframe.focus();
+    }
+
+    function closeFull() {
+        document.getElementById('fullScreenOverlay').style.display = "none";
+        document.getElementById('renderArea').innerHTML = "";
+    }
+
+    window.addEventListener('keydown', (e) => { if(e.key === "Escape") closeFull(); });
+</script>
+
+</body>
+</html>
